@@ -41,7 +41,6 @@ instance FromJSON OAuth2 where
   parseJSON = genericParseJSON
      (defaultOptions
       { fieldLabelModifier = fromCamel 5
---       , fieldsWithDefaults = [ ("partial_match", [| False |]) ]
       })
 
 instance ToJSON OAuth2
