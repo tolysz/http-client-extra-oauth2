@@ -34,13 +34,14 @@ data OAuth2 = OAuth2
   , oauthTokenUri            :: String
   , oauthRevokeUri           :: String
   , oauthRedirectUri         :: Text
+  , oauthState               :: Maybe Text
   } deriving (Show, Eq, Typeable, Generic)
 
 instance FromJSON OAuth2 where
   parseJSON = genericParseJSON
      (defaultOptions
       { fieldLabelModifier = fromCamel 5
-      , fieldsWithDefaults = [ ("partial_match", [| False |]) ]
+--       , fieldsWithDefaults = [ ("partial_match", [| False |]) ]
       })
 
 instance ToJSON OAuth2

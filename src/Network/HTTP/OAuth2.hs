@@ -51,6 +51,7 @@ bearer bb token = RequestHeadersE $ if T.null token then [] else [("Authorizatio
 authorizeUrl :: OAuth2 -> QueryE
 authorizeUrl OAuth2{..} = QueryE [ ("client_id"    , Just oauthClientId)
                                  , ("redirect_uri" , Just oauthRedirectUri)
+                                 , ("state"        , oauthState)
                                  ]
 forceOfflineIncremental :: QueryE
 forceOfflineIncremental = forceOffline  <> QueryE [("include_granted_scopes", Just "true"   )]
@@ -93,16 +94,20 @@ refreshToken o mgr OAuth2{..} =
 --- revokeToken mgr 
 -- oauthRevokeTokenEndpoint
 
-getOAuth2 :: (MonadIO m, MonadThrow m, Functor m, FromJSON a) => Manager -> AuthToken -> String ->  m (OAuth2Result a)
+getOAuth2 :: (MonadIO m, MonadThrow m, Functor m, FromJSON a)
+          => Manager -> AuthToken -> String ->  m (OAuth2Result a)
 getOAuth2 mgr AuthToken{..} url = methodJSONOAuth mgr "GET" Nothing url def (bearer atTokenType atAccessToken) (EmptyBody def)
 
-putOAuth2 :: (Functor m, MonadIO m, ContentEncoder m b, MonadThrow m, FromJSON a) => Manager -> AuthToken -> String -> b -> m (OAuth2Result a)
+putOAuth2 :: (Functor m, MonadIO m, ContentEncoder m b, MonadThrow m, FromJSON a)
+          => Manager -> AuthToken -> String -> b -> m (OAuth2Result a)
 putOAuth2 mgr AuthToken{..} url = methodJSONOAuth mgr "PUT" Nothing url def (bearer atTokenType atAccessToken)
 
-patchOAuth2 :: (Functor m, MonadIO m, ContentEncoder m b, MonadThrow m, FromJSON a) => Manager -> AuthToken -> String -> QueryE -> RequestHeadersE -> b -> m (OAuth2Result a)
+patchOAuth2 :: (Functor m, MonadIO m, ContentEncoder m b, MonadThrow m, FromJSON a)
+         => Manager -> AuthToken -> String -> QueryE -> RequestHeadersE -> b -> m (OAuth2Result a)
 patchOAuth2 mgr AuthToken{..} url qq hh = methodJSONOAuth mgr "PATCH" Nothing url qq (hh <> bearer atTokenType atAccessToken)
 
-postOAuth2 :: (Functor m, MonadIO m, ContentEncoder m b, MonadThrow m, FromJSON a) => Manager -> AuthToken -> String -> b -> m (OAuth2Result a)
+postOAuth2 :: (Functor m, MonadIO m, ContentEncoder m b, MonadThrow m, FromJSON a)
+           => Manager -> AuthToken -> String -> b -> m (OAuth2Result a)
 postOAuth2 mgr AuthToken{..} url= methodJSONOAuth mgr "POST" Nothing url def (bearer atTokenType atAccessToken)
 
 getOAuth2BSL :: (MonadThrow m, MonadIO m) =>
