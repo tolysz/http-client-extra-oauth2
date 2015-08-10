@@ -74,9 +74,9 @@ fetchAccessToken :: Text -> Manager -> OAuth2 -> IO (OAuth2Result AuthToken)
 fetchAccessToken code mgr OAuth2{..} = do
       res  <- methodJSON mgr "POST" Nothing oauthTokenUri def def (UrlEncode def $ QueryE [("code", Just code),("client_id", Just oauthClientId),("client_secret", Just oauthClientSecret),("grant_type", Just "authorization_code"),("redirect_uri", Just oauthRedirectUri)])
       case res of
-        Left (s,i) -> return . Left . traceS $ AuthError (decodeUtf8 $ BSL.toStrict s) (Just i)
-        Right (Nothing,_,_) -> return $ Left $  AuthError "error parsing JSON" (Just 200)
-        Right (Just z,_,_) -> do
+        Left (s,_,_,i) -> return . Left . traceS $ AuthError (decodeUtf8 $ BSL.toStrict s) (Just i)
+        Right (Nothing,_,_,_) -> return $ Left $  AuthError "error parsing JSON" (Just 200)
+        Right (Just z,_,_,_) -> do
           now <- getCurrentTime
           let zz = z{atExpiresAt = (`addUTCTime` now ) . fromIntegral <$> atExpiresIn z}
           return $ Right $ traceS zz
@@ -123,6 +123,6 @@ getOAuth2BSL mgr AuthToken{..} url = methodBSL mgr "GET" Nothing url def (bearer
 methodJSONOAuth :: (MonadIO m, ContentEncoder m b, MonadThrow m, Functor m, DA.FromJSON a) => Manager -> Method -> Maybe CookieJar -> String -> QueryE -> RequestHeadersE -> b -> m (OAuth2Result a)
 methodJSONOAuth  a b c d e f g  =
     methodJSON a b c d e f g >>= \case
-        Left (s,i) -> let s1 = AuthError (decodeUtf8 $ BSL.toStrict s) (Just i) in {-- (liftIO $ print s1) >>  --} (return $ Left s1)
-        Right (Nothing,_,_) -> return $ Left $  AuthError "error parsing JSON" (Just 200)
-        Right (Just z,_,_) -> return $ Right z
+        Left (s,_,_,i) -> let s1 = AuthError (decodeUtf8 $ BSL.toStrict s) (Just i) in {-- (liftIO $ print s1) >>  --} (return $ Left s1)
+        Right (Nothing,_,_,_) -> return $ Left $  AuthError "error parsing JSON" (Just 200)
+        Right (Just z,_,_,_) -> return $ Right z
