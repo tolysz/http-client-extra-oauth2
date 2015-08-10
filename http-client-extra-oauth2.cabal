@@ -2,7 +2,7 @@
 -- further documentation, see http://haskell.org/cabal/users-guide/
 
 name:                http-client-extra-oauth2
-version:             0.1.0.0
+version:             0.1.0.2
 -- synopsis:            
 -- description:         
 license:             BSD3

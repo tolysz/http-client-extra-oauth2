@@ -115,8 +115,8 @@ getOAuth2BSL :: (MonadThrow m, MonadIO m) =>
                       -> AuthToken
                       -> String
                       -> m (Either
-                              (BSL.ByteString, Int)
-                              (BSL.ByteString,CookieJar,ResponseHeaders))
+                              (BSL.ByteString,CookieJar,ResponseHeaders, Int)
+                              (BSL.ByteString,CookieJar,ResponseHeaders, Int))
 
 getOAuth2BSL mgr AuthToken{..} url = methodBSL mgr "GET" Nothing url def (bearer atTokenType atAccessToken) (EmptyBody def)
 
