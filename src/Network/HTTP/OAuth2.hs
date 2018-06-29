@@ -1,4 +1,4 @@
-{-#LANGUAGE  LambdaCase #-}
+{-#LANGUAGE  LambdaCase, CPP #-}
 module Network.HTTP.OAuth2 where
 
 import Prelude
@@ -13,7 +13,14 @@ import Data.Aeson
 import Data.Aeson.Types as DA
 import Data.Bool
 import Data.Default
-import Data.Monoid
+
+#if !(MIN_VERSION_base(4,8,0))
+import Data.Monoid (Monoid(..))
+#endif
+#if !(MIN_VERSION_base(4,11,0))
+import Data.Semigroup (Semigroup(..))
+#endif
+
 import Data.String
 import Data.Text (Text)
 import Data.Time.Clock (getCurrentTime, addUTCTime)
@@ -31,9 +38,11 @@ import Debug.Trace
 newtype Scope = Scope [Text]
    deriving (Eq, Show, Read)
 
+instance Semigroup Scope where
+  (Scope a) <> (Scope b) = Scope (a ++ b)
+
 instance Monoid Scope where
   mempty = Scope []
-  mappend (Scope a) (Scope b) = Scope (a ++ b)
 
 instance Default Scope where
   def = Scope []
